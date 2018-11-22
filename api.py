@@ -127,14 +127,13 @@ class Scoring(db.Model):
 class CameraResource(Resource):
     def get(self):
         return {"message": "SUCCEESS"}, 200
-        
+
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument("dataUri", type= str, help= 'judul key must be an string and exist', location= 'json', required= True)
+        parser.add_argument("dataUri", type= str, help= 'dataUri must be string and exist', location= 'json', required= True)
         args = parser.parse_args()
-        grading(args['dataUri'])
-        print("yey")
-        return {"data": args['dataUri']}, 200
+        score, codes = grading(args['dataUri'])
+        return {"score": score, "nama": codes}, 200
 
 
 api.add_resource(CameraResource, '/camera')

@@ -3,6 +3,9 @@ import cv2
 import base64
 from grade_paper import ProcessPage
 
+mx = 0
+my = 0
+
 def data_uri_to_cv2_img(uri):
     encoded_data = uri.split(',')[1]
     nparr = np.fromstring(base64.b64decode(encoded_data), np.uint8)
@@ -17,8 +20,8 @@ def clockwise_sort(x):
 def grading(dataUri):
     data_uri = dataUri
     image = data_uri_to_cv2_img(data_uri)
-    cv2.imshow("aha",image)
-    return 0
+    # cv2.imshow("aha",image)
+    # return 0
 
     ratio = len(image[0]) / 500.0 #used for resizing the image
     original_image = image.copy() #make a copy of the original image
@@ -94,3 +97,4 @@ def grading(dataUri):
                 score += 1
 
         print("score: ", score / len(answers) * 100)
+        return score, codes
