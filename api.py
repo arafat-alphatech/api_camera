@@ -10,6 +10,7 @@ from flask_jwt_extended import jwt_required, JWTManager, create_access_token, ge
 from functools import wraps
 from flask_cors import CORS
 import sys
+from run import grading
 
 # pengaturan app
 app = Flask(__name__)
@@ -122,6 +123,18 @@ class Scoring(db.Model):
     paket_soal = relationship("Paket_Soal", uselist=False,back_populates="children")
     nilai = db.Column(db.Integer,nullable=False)
     
+
+class CameraResource(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument("dataUri", type= str, help= 'judul key must be an string and exist', location= 'json', required= True)
+        args = parser.parse_args()
+        grading(args['dataUri'])
+        print("yey")
+        return {"data": args['dataUri']}, 200
+
+
+api.add_resource(CameraResource, '/camera')
 
 if __name__=='__main__':
     try:
