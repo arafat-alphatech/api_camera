@@ -125,6 +125,9 @@ class Scoring(db.Model):
     
 
 class CameraResource(Resource):
+    def get(self):
+        return {"message": "SUCCEESS"}, 200
+        
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument("dataUri", type= str, help= 'judul key must be an string and exist', location= 'json', required= True)
