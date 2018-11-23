@@ -132,8 +132,9 @@ class CameraResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument("dataUri", type= str, help= 'dataUri must be string and exist', location= 'json', required= True)
         args = parser.parse_args()
-        score, codes = grading(args['dataUri'])
-        return {"score": score, "nama": codes}, 200
+        score, codes= grading(args['dataUri'])
+        return {"dataUri": args['dataUri']}, 200
+        # return {"score": score, "nama": codes}, 200
 
 
 api.add_resource(CameraResource, '/camera')

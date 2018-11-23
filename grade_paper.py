@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from PIL import Image
 import zbarlight
+import pyzbar.pyzbar as pyzbar
+import ast
 
 epsilon = 10 #image error sensitivity
 test_sensitivity_epsilon = 10 #bubble darkness error sensitivity
@@ -15,16 +17,25 @@ tags = [cv2.imread("markers/top_left.png", cv2.IMREAD_GRAYSCALE),
 
 #test sheet specific scaling constants
 scaling = [605.0, 835.0]
-columns = [[72.0 / scaling[0], 33 / scaling[1]], [422.0 / scaling[0], 33 / scaling[1]]]
+columns = [[73.0 / scaling[0], 34 / scaling[1]], [431.0 / scaling[0], 34 / scaling[1]]]
 radius = 10.0 / scaling[0]
 spacing = [35.0 / scaling[0], 32.0 / scaling[1]]
 
 def ProcessPage(paper):
     answers = [] #contains answers
+    answers_string = ''
     gray_paper = cv2.cvtColor(paper, cv2.COLOR_BGR2GRAY) #convert image to grayscale
-    codes = zbarlight.scan_codes('qrcode', Image.fromarray(np.uint8(gray_paper))) #look for QR code
-    corners = FindCorners(paper) #find the corners of the bubbled area
+    
+    # get QR CODE 
+    decodedObjects = pyzbar.decode(paper)
+    # Print results
+    codes = 0
+    if decodedObjects != []:
+        dataDecoded = (decodedObjects[0].data).decode()
+        codes = ast.literal_eval(dataDecoded)
 
+    print('decode:', decodedObjects)
+    corners = FindCorners(paper) #find the corners of the bubbled area
     #if we can't find the markers, return an error
     if corners is None:
         return [-1], paper, [-1]
@@ -78,19 +89,15 @@ def ProcessPage(paper):
 
             #append the answers to the array
             answers.append(answer_choices[min_arg])
+            answers_string += answer_choices[min_arg]
 
-    #draw the name if found from the QR code
-    # if codes is not None:
-    #     cv2.putText(paper, codes[0], (int(0.28*dimensions[0]), int(0.125*dimensions[1])), cv2.FONT_HERSHEY_PLAIN, 0.4, (0, 0, 0), 1)
-    # else:
-    #     codes = [-1]
-    return answers, paper, codes
+    return answers_string, paper, codes
 
 def FindCorners(paper):
     gray_paper = cv2.cvtColor(paper, cv2.COLOR_BGR2GRAY) #convert image of paper to grayscale
 
     #scaling factor used later
-    ratio = len(paper[0]) / 816.0
+    ratio = len(paper[0]) / 1000.0
 
     #error detection
     if ratio == 0:
