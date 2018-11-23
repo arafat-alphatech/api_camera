@@ -25,8 +25,8 @@ def grading(data_uri):
 	# cv2.namedWindow('Original Image')
 	# cv2.namedWindow('Scanned Paper')
 
-	image = data_uri_to_cv2_img(data_uri)
-	# image = cv2.imread("test1.jpg")
+	# image = data_uri_to_cv2_img(data_uri)
+	image = cv2.imread("coba.png")
 
 	# image = cv2.imread("test2.png")
 	# cv2.imshow("aha",image)
@@ -128,4 +128,4 @@ def grading(data_uri):
 
 	# cv2.waitKey(0)
 
-# grading('asd')
+grading('asd')
