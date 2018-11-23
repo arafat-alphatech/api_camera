@@ -1,7 +1,5 @@
 import cv2
 import numpy as np
-from PIL import Image
-import zbarlight
 import pyzbar.pyzbar as pyzbar
 import ast
 
