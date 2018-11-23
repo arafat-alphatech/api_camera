@@ -22,15 +22,9 @@ def clockwise_sort(x):
 def grading(data_uri):
 	global mx 
 	global my
-	# cv2.namedWindow('Original Image')
-	# cv2.namedWindow('Scanned Paper')
 
-	# image = data_uri_to_cv2_img(data_uri)
-	image = cv2.imread("coba.png")
-
-	# image = cv2.imread("test2.png")
-	# cv2.imshow("aha",image)
-	# cv2.waitKey(0)
+	image = data_uri_to_cv2_img(data_uri)
+	# image = cv2.imread("coba.png")
 
 	ratio = len(image[0]) / 500.0 #used for resizing the image
 	original_image = image.copy() #make a copy of the original image
@@ -128,4 +122,4 @@ def grading(data_uri):
 
 	# cv2.waitKey(0)
 
-grading('asd')
+# grading('asd')
