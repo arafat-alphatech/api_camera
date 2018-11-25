@@ -3,37 +3,34 @@ import numpy as np
 import pyzbar.pyzbar as pyzbar
 import ast
 
+
 epsilon = 10 #image error sensitivity
 test_sensitivity_epsilon = 10 #bubble darkness error sensitivity
 answer_choices = ['A', 'B', 'C', 'D', 'E', '?'] #answer choices
 
 #load tracking tags
-tags = [cv2.imread("markers/top_left.png", cv2.IMREAD_GRAYSCALE),
-        cv2.imread("markers/top_right.png", cv2.IMREAD_GRAYSCALE),
-        cv2.imread("markers/bottom_left.png", cv2.IMREAD_GRAYSCALE),
-        cv2.imread("markers/bottom_right.png", cv2.IMREAD_GRAYSCALE)]
+tags = [cv2.imread("markers2/top_left.jpg", cv2.IMREAD_GRAYSCALE),
+        cv2.imread("markers2/top_right.jpg", cv2.IMREAD_GRAYSCALE),
+        cv2.imread("markers2/bottom_left.jpg", cv2.IMREAD_GRAYSCALE),
+        cv2.imread("markers2/bottom_right.jpg", cv2.IMREAD_GRAYSCALE)]
 
 #test sheet specific scaling constants
-scaling = [605.0, 835.0]
-columns = [[73.0 / scaling[0], 34 / scaling[1]], [431.0 / scaling[0], 34 / scaling[1]]]
-radius = 10.0 / scaling[0]
-spacing = [35.0 / scaling[0], 32.0 / scaling[1]]
+scaling = [600.0, 842.0]
+columns = [[115.0 / scaling[0], 40 / scaling[1]], [444.0 / scaling[0], 40 / scaling[1]]]
+radius = 5.0 / scaling[0]
+spacing = [25.0 / scaling[0], 31.7 / scaling[1]]
 
 def ProcessPage(paper):
-    answers = [] #contains answers
-    answers_string = ''
+    answers = '' #contains answers
     gray_paper = cv2.cvtColor(paper, cv2.COLOR_BGR2GRAY) #convert image to grayscale
-    
-    # get QR CODE 
     decodedObjects = pyzbar.decode(paper)
     # Print results
-    codes = 0
     if decodedObjects != []:
-        dataDecoded = (decodedObjects[0].data).decode()
-        codes = ast.literal_eval(dataDecoded)
+        codes = (decodedObjects[0].data).decode()
 
-    print('decode:', decodedObjects)
+   
     corners = FindCorners(paper) #find the corners of the bubbled area
+
     #if we can't find the markers, return an error
     if corners is None:
         return [-1], paper, [-1]
@@ -86,17 +83,16 @@ def ProcessPage(paper):
             cv2.putText(paper, answer_choices[min_arg], (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 150, 0), 1)
 
             #append the answers to the array
-            answers.append(answer_choices[min_arg])
-            answers_string += answer_choices[min_arg]
+            answers += answer_choices[min_arg]
 
-    return answers_string, paper, codes
+    return answers, paper, codes
 
 def FindCorners(paper):
     gray_paper = cv2.cvtColor(paper, cv2.COLOR_BGR2GRAY) #convert image of paper to grayscale
 
+    #ljk1 = 1140
     #scaling factor used later
-    ratio = len(paper[0]) / 1000.0
-
+    ratio = len(paper[0]) / 1140.0
     #error detection
     if ratio == 0:
         return -1
@@ -104,22 +100,28 @@ def FindCorners(paper):
     corners = [] #array to hold found corners
 
     #try to find the tags via convolving the image
-    for tag in tags:
-        tag = cv2.resize(tag, (0,0), fx=ratio, fy=ratio) #resize tags to the ratio of the image
+    cnt = 1
 
-        #convolve the image
+    for tag in tags:
+        text = "tag" + str(cnt)
+
+        tag = cv2.resize(tag, (0,0), fx=ratio, fy=ratio) #resize tags to the ratio of the image
         convimg = (cv2.filter2D(np.float32(cv2.bitwise_not(gray_paper)), -1, np.float32(cv2.bitwise_not(tag))))
 
         #find the maximum of the convolution
         corner = np.unravel_index(convimg.argmax(), convimg.shape)
 
         #append the coordinates of the corner
-        corners.append([corner[1], corner[0]]) #reversed because array order is different than image coordinate
+        corners.append([corner[1], corner[0], text]) #reversed because array order is different than image coordinate
+        cnt += 1
 
     #draw the rectangle around the detected markers
+    
     for corner in corners:
         cv2.rectangle(paper, (corner[0] - int(ratio * 25), corner[1] - int(ratio * 25)),
         (corner[0] + int(ratio * 25), corner[1] + int(ratio * 25)), (0, 255, 0), thickness=2, lineType=8, shift=0)
+        # cv2.putText(paper, corner[2], (corner[0], corner[1]), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 150, 0), 1)
+
 
     #check if detected markers form roughly parallel lines when connected
     if corners[0][0] - corners[2][0] > epsilon:
