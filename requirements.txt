@@ -31,7 +31,7 @@ olefile==0.44
 opencv-python==3.3.0.10
 Pillow==4.2.1
 pycparser==2.19
-PyJWT==1.6.4
+PyJWT==2.4.0
 pylint==2.1.1
 PyMySQL==0.9.2
 pyOpenSSL==18.0.0
